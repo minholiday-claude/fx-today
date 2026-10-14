@@ -58,18 +58,19 @@ h1 { margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
 .base {
   background: var(--surface);
   border: 1px solid var(--accent-dim);
-  color: var(--fg);
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 14px;
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
 }
 .base label { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.02em; }
 .base-row { display: flex; align-items: center; gap: 10px; }
-.base-row img { width: 30px; height: 20px; border-radius: 3px; object-fit: cover; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.base-row img { width: 36px; height: 24px; border-radius: 3px; object-fit: cover; flex: none; box-shadow: 0 0 0 1px var(--line); }
+.base-sym { font: 700 1.8rem/1 var(--num); color: var(--muted); flex: none; }
 #amount {
   flex: 1; min-width: 0;
-  font: 700 1.7rem/1.1 var(--num);
+  font: 700 2.2rem/1.1 var(--num);
   font-variant-numeric: tabular-nums;
   color: var(--accent);
   background: transparent;
@@ -79,42 +80,52 @@ h1 { margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
   outline: none;
 }
 #amount:focus { border-bottom-color: var(--accent); }
-.base-code { font-weight: 700; font-size: 1rem; }
 .base-words { font-size: 0.85rem; color: var(--muted); min-height: 1.2em; }
 
-ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-li button {
-  width: 100%;
+/* 기준 통화 선택: 작은 버튼 줄 */
+.picker { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.picker button {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font: 600 0.72rem/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: .03em;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 7px 0 6px;
+  min-width: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.picker img { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; }
+.picker button[aria-pressed="true"] { color: var(--on-accent); background: var(--accent); }
+.picker button:focus-visible, .picker button:hover { border-color: var(--accent-dim); }
+
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+li {
   display: grid;
   grid-template-columns: 44px 1fr auto;
   align-items: center;
-  gap: 12px;
-  text-align: left;
-  font: inherit;
-  color: inherit;
+  column-gap: 12px;
+  row-gap: 4px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 12px 14px;
-  cursor: pointer;
 }
-li button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-li button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 .flag { width: 44px; height: 30px; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px var(--line); }
 .name { display: grid; gap: 2px; min-width: 0; }
 .name b { font-size: 1rem; font-weight: 700; }
 .name small { font-size: 0.74rem; color: var(--muted); font-family: "JetBrains Mono", ui-monospace, monospace; letter-spacing: .04em; }
 .val { text-align: right; display: grid; gap: 2px; min-width: 0; }
-.val strong { font-family: var(--num); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; word-break: break-all; }
+.val strong { font-family: var(--num); font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; word-break: break-all; }
 .val span { font-size: 0.74rem; color: var(--muted); }
-.val .u { font-size: .8em; font-weight: 600; color: var(--muted); margin-right: 2px; }
-li button[aria-pressed="true"] .val strong { color: var(--accent); }
-.words { grid-column: 2 / 4; font-size: 0.8rem; color: var(--muted); margin-top: -4px; }
-footer { font-size: 0.72rem; color: var(--muted); text-align: center; }
-footer a { color: inherit; }
+.val .u { font-size: .75em; font-weight: 600; color: var(--muted); margin-right: 2px; }
+.words { grid-column: 2 / 4; font-size: 0.8rem; color: var(--muted); }
+footer { font-size: 0.72rem; color: var(--muted); text-align: center; margin-top: auto; }
 @media (max-height: 640px) {
-  li button { padding: 8px 12px; }
-  .val strong { font-size: 1.05rem; }
+  li { padding: 8px 12px; }
+  .val strong { font-size: 1.15rem; }
 }
 </style>
 </head>
@@ -130,15 +141,17 @@ footer a { color: inherit; }
     <label for="amount" id="baseLabel">기준 금액</label>
     <div class="base-row">
       <img id="baseFlag" alt="">
-      <input id="amount" inputmode="decimal" autocomplete="off" value="1">
-      <span class="base-code" id="baseCode"></span>
+      <span class="base-sym" id="baseSym"></span>
+      <input id="amount" inputmode="decimal" autocomplete="off" value="1" size="1">
     </div>
     <div class="base-words" id="baseWords"></div>
   </section>
 
+  <div class="picker" id="picker" role="group" aria-label="기준 통화 선택"></div>
+
   <ul id="list"></ul>
 
-  <footer>아래 통화를 누르면 그 통화로 기준이 바뀝니다 · 매일 자동 갱신</footer>
+  <footer>매일 자동 갱신 · 참고용 기준 환율</footer>
 </div>
 
 <script>
@@ -197,43 +210,52 @@ const parseAmount = () => {
 };
 const convert = (amt, from, to) => amt / rates[from] * rates[to];
 
+function renderPicker() {
+  const picker = $("picker");
+  picker.innerHTML = "";
+  for (const c of CURRENCIES) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.setAttribute("aria-pressed", c.code === base);
+    btn.setAttribute("aria-label", `${c.name} 기준`);
+    btn.innerHTML = `<img src="${flagUrl(c.flag)}" alt="">${c.sym} ${c.code}`;
+    btn.addEventListener("click", () => {
+      if (c.code === base) return;
+      base = c.code;
+      try { localStorage.setItem("fx-base", base); } catch (e) {}
+      renderPicker();
+      render();
+    });
+    picker.appendChild(btn);
+  }
+}
+
 function render() {
   const b = CURRENCIES.find(c => c.code === base);
   $("baseFlag").src = flagUrl(b.flag);
-  $("baseCode").textContent = b.sym;
+  $("baseSym").textContent = b.sym;
   $("baseLabel").textContent = `기준 금액 · ${b.name}`;
   const amt = parseAmount();
   $("baseWords").textContent = amt ? koreanWords(amt) : "";
 
   list.innerHTML = "";
   for (const c of CURRENCIES) {
+    if (c.code === base) continue;
     const li = document.createElement("li");
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.setAttribute("aria-pressed", c.code === base);
     let value = "—", sub = "", words = "";
     if (rates) {
       const v = convert(amt, base, c.code);
-      value = `${fmt(c.code, v)}`;
+      value = fmt(c.code, v);
       words = v >= 1 ? `${Math.abs(v - Math.round(v)) > 0.005 ? "약 " : ""}${koreanWords(v)}` : "";
       sub = c.code === "KRW"
-        ? "$1 = ₩" + fmt("KRW", convert(1, "USD", "KRW"))
+        ? `${b.sym}${b.per} = ₩${fmt("KRW", convert(b.per, b.code, "KRW"))}`
         : `${c.sym}${c.per} = ₩${fmt("KRW", convert(c.per, c.code, "KRW"))}`;
     }
-    btn.innerHTML = `
+    li.innerHTML = `
       <img class="flag" src="${flagUrl(c.flag)}" alt="${c.name} 국기">
       <span class="name"><b>${c.name}</b><small>${c.code}</small></span>
       <span class="val"><strong><small class="u">${c.sym}</small>${value}</strong><span>${sub}</span></span>
-      <span class="words">${words}</span>`;
-    btn.addEventListener("click", () => {
-      if (c.code === base || !rates) return;
-      const v = convert(parseAmount(), base, c.code);
-      base = c.code;
-      try { localStorage.setItem("fx-base", base); } catch (e) {}
-      $("amount").value = fmt(c.code, v).replace(/,/g, "");
-      render();
-    });
-    li.appendChild(btn);
+      ${words ? `<span class="words">${words}</span>` : ""}`;
     list.appendChild(li);
   }
 }
@@ -285,6 +307,7 @@ async function load() {
   $("stamp").classList.add("err");
 }
 
+renderPicker();
 render();
 load();
 </script>
