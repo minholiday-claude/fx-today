@@ -107,7 +107,7 @@ li button[aria-pressed="true"] { border-color: var(--accent); background: var(--
 .val { text-align: right; display: grid; gap: 2px; min-width: 0; }
 .val strong { font-family: var(--num); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; word-break: break-all; }
 .val span { font-size: 0.74rem; color: var(--muted); }
-.val .u { font-family: var(--font); font-size: .68em; font-weight: 600; color: var(--muted); }
+.val .u { font-size: .8em; font-weight: 600; color: var(--muted); margin-right: 2px; }
 li button[aria-pressed="true"] .val strong { color: var(--accent); }
 .words { grid-column: 2 / 4; font-size: 0.8rem; color: var(--muted); margin-top: -4px; }
 footer { font-size: 0.72rem; color: var(--muted); text-align: center; }
@@ -143,11 +143,11 @@ footer a { color: inherit; }
 
 <script>
 const CURRENCIES = [
-  { code: "USD", name: "미국 달러", unit: "달러", flag: "us", per: 1 },
-  { code: "JPY", name: "일본 엔", unit: "엔", flag: "jp", per: 100 },
-  { code: "KRW", name: "대한민국 원", unit: "원", flag: "kr", per: 1 },
-  { code: "CNY", name: "중국 위안", unit: "위안", flag: "cn", per: 1 },
-  { code: "EUR", name: "유럽 유로", unit: "유로", flag: "eu", per: 1 },
+  { code: "USD", sym: "$", name: "미국 달러", unit: "달러", flag: "us", per: 1 },
+  { code: "JPY", sym: "¥", name: "일본 엔", unit: "엔", flag: "jp", per: 100 },
+  { code: "KRW", sym: "₩", name: "대한민국 원", unit: "원", flag: "kr", per: 1 },
+  { code: "CNY", sym: "元", name: "중국 위안", unit: "위안", flag: "cn", per: 1 },
+  { code: "EUR", sym: "€", name: "유럽 유로", unit: "유로", flag: "eu", per: 1 },
 ];
 const flagUrl = c => `https://flagcdn.com/w160/${c}.png`;
 
@@ -200,10 +200,10 @@ const convert = (amt, from, to) => amt / rates[from] * rates[to];
 function render() {
   const b = CURRENCIES.find(c => c.code === base);
   $("baseFlag").src = flagUrl(b.flag);
-  $("baseCode").textContent = b.unit;
+  $("baseCode").textContent = b.sym;
   $("baseLabel").textContent = `기준 금액 · ${b.name}`;
   const amt = parseAmount();
-  $("baseWords").textContent = amt ? `${koreanWords(amt)} ${b.unit}` : "";
+  $("baseWords").textContent = amt ? koreanWords(amt) : "";
 
   list.innerHTML = "";
   for (const c of CURRENCIES) {
@@ -215,15 +215,15 @@ function render() {
     if (rates) {
       const v = convert(amt, base, c.code);
       value = `${fmt(c.code, v)}`;
-      words = v >= 1 ? `${Math.abs(v - Math.round(v)) > 0.005 ? "약 " : ""}${koreanWords(v)} ${c.unit}` : "";
+      words = v >= 1 ? `${Math.abs(v - Math.round(v)) > 0.005 ? "약 " : ""}${koreanWords(v)}` : "";
       sub = c.code === "KRW"
-        ? "1달러 = " + fmt("KRW", convert(1, "USD", "KRW")) + "원"
-        : `${c.per}${c.unit} = ${fmt("KRW", convert(c.per, c.code, "KRW"))}원`;
+        ? "$1 = ₩" + fmt("KRW", convert(1, "USD", "KRW"))
+        : `${c.sym}${c.per} = ₩${fmt("KRW", convert(c.per, c.code, "KRW"))}`;
     }
     btn.innerHTML = `
       <img class="flag" src="${flagUrl(c.flag)}" alt="${c.name} 국기">
       <span class="name"><b>${c.name}</b><small>${c.code}</small></span>
-      <span class="val"><strong>${value}<small class="u"> ${c.unit}</small></strong><span>${sub}</span></span>
+      <span class="val"><strong><small class="u">${c.sym}</small>${value}</strong><span>${sub}</span></span>
       <span class="words">${words}</span>`;
     btn.addEventListener("click", () => {
       if (c.code === base || !rates) return;
